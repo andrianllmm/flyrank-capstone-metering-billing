@@ -1,0 +1,23 @@
+# Evaluator manifest. See docs/spec.md §11 and §12.
+
+run: pnpm dev
+seed: pnpm exec prisma db seed
+test: pnpm test
+base_url: http://localhost:3000
+
+endpoints:
+  - method: POST
+    path: /generate
+    description: Dummy billable endpoint. Records usage, enforces quota, computes cost.
+    headers:
+      Authorization: 'Bearer <tenant_api_key>'
+      Idempotency-Key: '<uuid>'
+  - method: GET
+    path: /usage
+    description: Current-period rollup, { used, limit, cost } per usage type.
+  - method: POST
+    path: /billing/checkout
+    description: Creates a Stripe Checkout session for a Free to Pro upgrade.
+  - method: POST
+    path: /webhooks/stripe
+    description: Signature-verified, deduplicated Stripe webhook handler.
