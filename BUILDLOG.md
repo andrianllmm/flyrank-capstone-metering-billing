@@ -20,3 +20,17 @@ default, which `typescript-eslint` doesn't support yet.
 **AI helped:** drafted `architecture.md` (Phase 1 design doc).
 
 **Changed:** refined data model and simplified auth.
+
+## 2026-08-18 - Health check endpoints
+
+**AI helped:** Added `GET /health` (liveness) and `GET /health/db`
+(readiness).
+
+**AI was wrong:**
+
+1. First wired the Prisma client by importing straight out of
+   `node_modules`. Caught it before committing and moved the generator output to `src/generated/prisma` convention Prisma 7 actually documents.
+2. Assumed `new PrismaClient()` would work with just `DATABASE_URL`
+   in `.env`. Prisma 7 requires an explicit driver adapter now.
+
+**Changed:** Generator output path, the Prisma client import, and the driver adapter dependency.
