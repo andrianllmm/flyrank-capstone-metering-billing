@@ -36,17 +36,25 @@ Claims without evidence score as not done.
   (2 rows)
   ```
 
-- [ ] A test proves double-counting cannot happen.
+- [x] A test proves double-counting cannot happen.
 
-  _Evidence:_ Proven manually above (curl transcript), but not yet as an
-  automated test. `meterService.record` checks `findByIdempotencyKey`
-  before inserting, backed by the DB's `@@unique([tenantId,
-idempotencyKey])` constraint as the real enforcement mechanism — but
-  there's no Vitest/Supertest test asserting this yet, and the check-then-
-  insert isn't atomic (a genuine concurrent race could still both pass the
-  read before either writes; the DB unique constraint would reject the
-  second write with `P2002`, which the service doesn't yet catch). Pending
-  the metering test slice.
+  _Evidence:_ `tests/generate.test.ts`, `does not double-count a retried
+request with the same idempotency key` — sends the same request twice,
+  asserts identical responses and exactly 2 `usage_events` rows (one
+  `api_call` + one `ai_tokens`).
+
+  ```
+  $ npx vitest run --reporter=verbose
+   ✓ tests/generate.test.ts > POST /generate > does not double-count a retried request with the same idempotency key 70ms
+   Test Files  1 passed (1)
+        Tests  9 passed (9)
+  ```
+
+  Note: `meterService.record`'s check-then-insert isn't atomic — a genuine
+  concurrent race could still both pass the read before either writes.
+  The DB's `@@unique([tenantId, idempotencyKey])` constraint would reject
+  the second write with `P2002`, which the service doesn't yet catch. Not
+  covered by a test (would need concurrent requests, not just sequential).
 
 ## Quotas
 
@@ -139,7 +147,10 @@ idempotencyKey])` constraint as the real enforcement mechanism — but
       just under / over), cost calculations, invalid-webhook rejection,
       duplicate-webhook handling.
 
-  _Evidence:_ TODO
+  _Evidence:_ `tests/generate.test.ts` covers duplicate usage prevention
+  and quota boundaries (at the limit / over the limit), see above. Cost
+  calculations, invalid-webhook rejection, and duplicate-webhook handling
+  are still TODO — those slices aren't implemented yet.
 
 - [ ] README + architecture diagram + setup instructions; submission-pack
       files from §11 present.

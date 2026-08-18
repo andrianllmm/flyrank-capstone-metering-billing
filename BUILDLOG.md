@@ -89,3 +89,13 @@ Server URL was hardcoded to `localhost`, then "fixed" to still hardcode `localho
 Route and docs share one Zod schema.
 Schemas moved to `src/schemas/`.
 Server URL now reads `BASE_URL` from env.
+
+## 2026-08-18 - Test setup + /generate coverage
+
+**AI helped:** Set up Vitest + Supertest against the real app and Docker Postgres, with fixtures
+that create and clean up their own tenant/plan/subscription rows. Covered `/generate`: validation,
+idempotency, quota boundaries, lapsed subscription.
+
+**AI was wrong:** Nothing to report this pass.
+
+**Changed:** 9 tests passing.
