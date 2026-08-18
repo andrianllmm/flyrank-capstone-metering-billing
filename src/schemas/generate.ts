@@ -26,7 +26,7 @@ export const UsageEntrySchema = z.object({
   quantity: z.number().int().openapi({ example: 10 }),
   costMicros: z.string().openapi({
     description: 'Integer cost in micros (1,000,000 = $1.00), as a string to preserve precision.',
-    example: '0',
+    example: '195',
   }),
 });
 

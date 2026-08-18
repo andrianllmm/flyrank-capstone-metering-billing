@@ -99,3 +99,13 @@ idempotency, quota boundaries, lapsed subscription.
 **AI was wrong:** Nothing to report this pass.
 
 **Changed:** 9 tests passing.
+
+## 2026-08-18 - Cost calculation
+
+I pinned arbitrary pricing constants, implemented `costService`.
+
+**AI helped:** Extended `/generate`'s simulation to a token breakdown so real cost has something to compute against. Added `tests/costService.test.ts`.
+
+**AI was wrong:** `generate.test.ts` mixed several concerns in one file unlike new `costService.test.ts`.
+
+**Changed:** split to match `costService.test.ts`'s isolation, added direct `quotaService.test.ts` and `meterService.test.ts`.

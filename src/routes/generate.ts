@@ -4,6 +4,7 @@ import { hashApiKey } from '../lib/apiKey.ts';
 import { tenantRepository } from '../repositories/tenantRepository.ts';
 import { meterService } from '../services/meterService.ts';
 import { quotaService, type QuotaCheckResult } from '../services/quotaService.ts';
+import type { AiTokenBreakdown } from '../services/costService.ts';
 import {
   GenerateBodySchema,
   GenerateHeadersSchema,
@@ -12,9 +13,14 @@ import {
 
 export const generateRouter = Router();
 
-// Rough token-count simulation (~4 chars/token)
-function estimateTokenCount(prompt: string): number {
-  return Math.max(1, Math.ceil(prompt.length / 4));
+// Deterministic token-category simulation (~4 chars/token), no real model call.
+function simulateTokenUsage(prompt: string): AiTokenBreakdown {
+  const promptTokens = Math.max(1, Math.ceil(prompt.length / 4));
+  const cachedInput = Math.floor(promptTokens * 0.2);
+  const input = promptTokens - cachedInput;
+  const output = promptTokens * 2;
+  const reasoning = Math.floor(output * 0.3);
+  return { input, cachedInput, output, reasoning };
 }
 
 function respondQuotaExceeded(
@@ -64,7 +70,8 @@ generateRouter.post('/generate', async (req, res) => {
     return;
   }
 
-  const tokenCount = estimateTokenCount(prompt);
+  const tokens = simulateTokenUsage(prompt);
+  const tokenCount = tokens.input + tokens.cachedInput + tokens.output + tokens.reasoning;
 
   const apiCallQuota = await quotaService.check({
     tenantId: tenant.id,
@@ -96,14 +103,12 @@ generateRouter.post('/generate', async (req, res) => {
     meterService.record({
       tenantId: tenant.id,
       type: 'ai_tokens',
-      quantity: tokenCount,
       idempotencyKey: `${idempotencyKey}:ai_tokens`,
+      ...tokens,
     }),
   ]);
 
-  // Validated against the same schema openapi.ts documents, so a shape
-  // mismatch (e.g. a forgotten costMicros.toString()) fails loudly here
-  // instead of shipping silently.
+  // Same schema openapi.ts documents, so a shape mismatch fails loudly here.
   const response = GenerateResponseSchema.parse({
     output: 'This is a simulated AI response.',
     usage: [

@@ -1,13 +1,10 @@
-import type { UsageEvent, UsageType } from '../generated/prisma/client.ts';
+import type { UsageEvent } from '../generated/prisma/client.ts';
 import { usageEventRepository } from '../repositories/usageEventRepository.ts';
-import { costService } from './costService.ts';
+import { costService, type AiTokenBreakdown } from './costService.ts';
 
-interface RecordUsageInput {
-  tenantId: string;
-  type: UsageType;
-  quantity: number;
-  idempotencyKey: string;
-}
+type RecordUsageInput =
+  | { tenantId: string; idempotencyKey: string; type: 'api_call'; quantity: number }
+  | ({ tenantId: string; idempotencyKey: string; type: 'ai_tokens' } & AiTokenBreakdown);
 
 export const meterService = {
   record: async (input: RecordUsageInput): Promise<UsageEvent> => {
@@ -19,13 +16,28 @@ export const meterService = {
       return existing;
     }
 
-    const costMicros = costService.calculate();
+    if (input.type === 'api_call') {
+      return usageEventRepository.create({
+        tenantId: input.tenantId,
+        type: 'api_call',
+        quantity: input.quantity,
+        costMicros: costService.calculate({ type: 'api_call', quantity: input.quantity }),
+        idempotencyKey: input.idempotencyKey,
+      });
+    }
 
+    const quantity = input.input + input.cachedInput + input.output + input.reasoning;
     return usageEventRepository.create({
       tenantId: input.tenantId,
-      type: input.type,
-      quantity: input.quantity,
-      costMicros,
+      type: 'ai_tokens',
+      quantity,
+      costMicros: costService.calculate({
+        type: 'ai_tokens',
+        input: input.input,
+        cachedInput: input.cachedInput,
+        output: input.output,
+        reasoning: input.reasoning,
+      }),
       idempotencyKey: input.idempotencyKey,
     });
   },

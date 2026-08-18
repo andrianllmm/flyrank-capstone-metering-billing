@@ -95,16 +95,27 @@ request with the same idempotency key` — sends the same request twice,
 
 - [ ] Monthly usage rolls up into a cost figure per tenant.
 
-  _Evidence:_ TODO
+  _Evidence:_ TODO — `GET /usage` not implemented yet.
 
-- [ ] AI token pricing handles cached input tokens, reasoning tokens, and
+- [x] AI token pricing handles cached input tokens, reasoning tokens, and
       output pricing correctly.
 
-  _Evidence:_ TODO
+  _Evidence:_ `tests/costService.test.ts` — cached input priced cheaper than fresh input,
+  reasoning tokens billed at the output rate (not free, not separate), categories not
+  flat-summed. Live proof via `/generate` (20-char prompt -> 4 fresh input + 1 cached input +
+  10 output + 3 reasoning tokens):
 
-- [ ] Pricing constants are pinned and covered by tests.
+  ```
+  $ curl -X POST http://localhost:3000/generate -H "Authorization: Bearer seed-free-fresh-key" \
+      -H "Idempotency-Key: cost-test-1" -d '{"prompt":"aaaaaaaaaaaaaaaaaaaa"}'
+  {"usage":[{"type":"api_call","quantity":1,"costMicros":"500"},{"type":"ai_tokens","quantity":18,"costMicros":"208"}]}
+  # 208 = 4*3 (input) + 1*1 (cachedInput) + (10+3)*15 (output+reasoning)
+  ```
 
-  _Evidence:_ TODO
+- [x] Pricing constants are pinned and covered by tests.
+
+  _Evidence:_ `src/config/pricing.ts` (`API_CALL_PRICE_MICROS`, `AI_TOKEN_PRICE_MICROS`),
+  tested in `tests/costService.test.ts` (5 tests, all passing).
 
 ## Stripe integration
 
