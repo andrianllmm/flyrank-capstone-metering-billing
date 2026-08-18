@@ -1,7 +1,7 @@
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 import { z } from 'zod';
-import { USAGE_TYPES } from '../lib/usageTypes.ts';
-import { AuthorizationHeaderSchema } from './common.ts';
+import { USAGE_TYPES } from '../lib/usageTypes.js';
+import { AuthorizationHeaderSchema } from './common.js';
 
 extendZodWithOpenApi(z);
 

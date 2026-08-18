@@ -8,8 +8,8 @@ import {
   GenerateBodySchema,
   GenerateHeadersSchema,
   GenerateResponseSchema,
-} from './schemas/generate.ts';
-import { UsageResponseSchema } from './schemas/usage.ts';
+} from './schemas/generate.js';
+import { UsageResponseSchema } from './schemas/usage.js';
 
 extendZodWithOpenApi(z);
 

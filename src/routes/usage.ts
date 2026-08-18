@@ -3,9 +3,9 @@ import {
   INVALID_API_KEY_MESSAGE,
   NO_ACTIVE_SUBSCRIPTION_MESSAGE,
   resolveTenant,
-} from '../lib/auth.ts';
-import { usageService } from '../services/usageService.ts';
-import { UsageHeadersSchema, UsageResponseSchema } from '../schemas/usage.ts';
+} from '../lib/auth.js';
+import { usageService } from '../services/usageService.js';
+import { UsageHeadersSchema, UsageResponseSchema } from '../schemas/usage.js';
 
 export const usageRouter = Router();
 

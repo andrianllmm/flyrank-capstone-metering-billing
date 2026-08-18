@@ -1,5 +1,5 @@
-import { prisma } from '../lib/prisma.ts';
-import type { Tenant } from '../generated/prisma/client.ts';
+import { prisma } from '../lib/prisma.js';
+import type { Tenant } from '../generated/prisma/client.js';
 
 export const tenantRepository = {
   findByApiKeyHash: (apiKeyHash: string): Promise<Tenant | null> => {

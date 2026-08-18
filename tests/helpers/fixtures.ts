@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { hashApiKey } from '../../src/lib/apiKey.ts';
-import { prisma } from '../../src/lib/prisma.ts';
-import type { SubscriptionStatus, Tenant } from '../../src/generated/prisma/client.ts';
+import { hashApiKey } from '../../src/lib/apiKey.js';
+import { prisma } from '../../src/lib/prisma.js';
+import type { SubscriptionStatus, Tenant } from '../../src/generated/prisma/client.js';
 
 interface TestTenant {
   tenant: Tenant;

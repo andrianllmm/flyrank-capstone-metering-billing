@@ -1,4 +1,4 @@
-import { API_CALL_PRICE_MICROS, AI_TOKEN_PRICE_MICROS } from '../config/pricing.ts';
+import { API_CALL_PRICE_MICROS, AI_TOKEN_PRICE_MICROS } from '../config/pricing.js';
 
 export interface AiTokenBreakdown {
   input: number;

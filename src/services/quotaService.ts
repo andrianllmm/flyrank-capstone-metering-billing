@@ -1,6 +1,6 @@
-import type { UsageType } from '../generated/prisma/client.ts';
-import { subscriptionRepository } from '../repositories/subscriptionRepository.ts';
-import { usageEventRepository } from '../repositories/usageEventRepository.ts';
+import type { UsageType } from '../generated/prisma/client.js';
+import { subscriptionRepository } from '../repositories/subscriptionRepository.js';
+import { usageEventRepository } from '../repositories/usageEventRepository.js';
 
 interface CheckQuotaInput {
   tenantId: string;

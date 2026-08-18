@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { afterEach, describe, expect, it } from 'vitest';
-import { app } from '../src/app.ts';
-import { createTestTenant, cleanupTenant, seedUsage } from './helpers/fixtures.ts';
+import { app } from '../src/app.js';
+import { createTestTenant, cleanupTenant, seedUsage } from './helpers/fixtures.js';
 
 describe('POST /generate quota', () => {
   let activeTenant: Awaited<ReturnType<typeof createTestTenant>> | null = null;

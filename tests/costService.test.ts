@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { costService } from '../src/services/costService.ts';
-import { API_CALL_PRICE_MICROS, AI_TOKEN_PRICE_MICROS } from '../src/config/pricing.ts';
+import { costService } from '../src/services/costService.js';
+import { API_CALL_PRICE_MICROS, AI_TOKEN_PRICE_MICROS } from '../src/config/pricing.js';
 
 describe('costService.calculate', () => {
   it('prices an api_call as quantity * the pinned per-call rate', () => {

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { usageService } from '../src/services/usageService.ts';
-import { createTestTenant, cleanupTenant, seedUsage } from './helpers/fixtures.ts';
+import { usageService } from '../src/services/usageService.js';
+import { createTestTenant, cleanupTenant, seedUsage } from './helpers/fixtures.js';
 
 describe('usageService.getRollup', () => {
   let activeTenant: Awaited<ReturnType<typeof createTestTenant>> | null = null;

@@ -1,18 +1,18 @@
 import { Router, type Response } from 'express';
-import type { UsageType } from '../generated/prisma/client.ts';
+import type { UsageType } from '../generated/prisma/client.js';
 import {
   INVALID_API_KEY_MESSAGE,
   NO_ACTIVE_SUBSCRIPTION_MESSAGE,
   resolveTenant,
-} from '../lib/auth.ts';
-import { meterService } from '../services/meterService.ts';
-import { quotaService, type QuotaCheckResult } from '../services/quotaService.ts';
-import type { AiTokenBreakdown } from '../services/costService.ts';
+} from '../lib/auth.js';
+import { meterService } from '../services/meterService.js';
+import { quotaService, type QuotaCheckResult } from '../services/quotaService.js';
+import type { AiTokenBreakdown } from '../services/costService.js';
 import {
   GenerateBodySchema,
   GenerateHeadersSchema,
   GenerateResponseSchema,
-} from '../schemas/generate.ts';
+} from '../schemas/generate.js';
 
 export const generateRouter = Router();
 

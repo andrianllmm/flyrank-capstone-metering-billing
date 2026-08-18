@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
-import { app } from '../src/app.ts';
+import { app } from '../src/app.js';
 
 describe('GET /usage validation', () => {
   it('rejects a request with no Authorization header', async () => {

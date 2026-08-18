@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { quotaService } from '../src/services/quotaService.ts';
-import { createTestTenant, cleanupTenant, seedUsage } from './helpers/fixtures.ts';
+import { quotaService } from '../src/services/quotaService.js';
+import { createTestTenant, cleanupTenant, seedUsage } from './helpers/fixtures.js';
 
 describe('quotaService.check', () => {
   let activeTenant: Awaited<ReturnType<typeof createTestTenant>> | null = null;

@@ -1,6 +1,6 @@
-import type { Tenant } from '../generated/prisma/client.ts';
-import { tenantRepository } from '../repositories/tenantRepository.ts';
-import { hashApiKey } from './apiKey.ts';
+import type { Tenant } from '../generated/prisma/client.js';
+import { tenantRepository } from '../repositories/tenantRepository.js';
+import { hashApiKey } from './apiKey.js';
 
 export const NO_ACTIVE_SUBSCRIPTION_MESSAGE =
   'No active subscription. Upgrade or renew your plan to continue.';

@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { afterEach, describe, expect, it } from 'vitest';
-import { prisma } from '../src/lib/prisma.ts';
-import { meterService } from '../src/services/meterService.ts';
-import { costService } from '../src/services/costService.ts';
-import { createTestTenant, cleanupTenant } from './helpers/fixtures.ts';
+import { prisma } from '../src/lib/prisma.js';
+import { meterService } from '../src/services/meterService.js';
+import { costService } from '../src/services/costService.js';
+import { createTestTenant, cleanupTenant } from './helpers/fixtures.js';
 
 describe('meterService.record', () => {
   let activeTenant: Awaited<ReturnType<typeof createTestTenant>> | null = null;

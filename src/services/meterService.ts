@@ -1,6 +1,6 @@
-import type { UsageEvent } from '../generated/prisma/client.ts';
-import { usageEventRepository } from '../repositories/usageEventRepository.ts';
-import { costService, type AiTokenBreakdown } from './costService.ts';
+import type { UsageEvent } from '../generated/prisma/client.js';
+import { usageEventRepository } from '../repositories/usageEventRepository.js';
+import { costService, type AiTokenBreakdown } from './costService.js';
 
 type RecordUsageInput =
   | { tenantId: string; idempotencyKey: string; type: 'api_call'; quantity: number }

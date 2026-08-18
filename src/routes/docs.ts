@@ -1,6 +1,6 @@
 import { apiReference } from '@scalar/express-api-reference';
 import { Router } from 'express';
-import { generateOpenApiDocument } from '../openapi.ts';
+import { generateOpenApiDocument } from '../openapi.js';
 
 export const docsRouter = Router();
 

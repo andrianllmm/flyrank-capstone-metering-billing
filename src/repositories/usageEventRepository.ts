@@ -1,5 +1,5 @@
-import { prisma } from '../lib/prisma.ts';
-import type { Prisma, UsageEvent, UsageType } from '../generated/prisma/client.ts';
+import { prisma } from '../lib/prisma.js';
+import type { Prisma, UsageEvent, UsageType } from '../generated/prisma/client.js';
 
 export const usageEventRepository = {
   findByIdempotencyKey: (tenantId: string, idempotencyKey: string): Promise<UsageEvent | null> => {

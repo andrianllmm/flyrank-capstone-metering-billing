@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { afterEach, describe, expect, it } from 'vitest';
-import { app } from '../src/app.ts';
-import { prisma } from '../src/lib/prisma.ts';
-import { costService } from '../src/services/costService.ts';
-import { createTestTenant, cleanupTenant } from './helpers/fixtures.ts';
+import { app } from '../src/app.js';
+import { prisma } from '../src/lib/prisma.js';
+import { costService } from '../src/services/costService.js';
+import { createTestTenant, cleanupTenant } from './helpers/fixtures.js';
 
 describe('POST /generate metering', () => {
   let activeTenant: Awaited<ReturnType<typeof createTestTenant>> | null = null;

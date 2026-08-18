@@ -1,10 +1,10 @@
 import express from 'express';
-import { healthRouter } from './routes/health.ts';
-import { generateRouter } from './routes/generate.ts';
-import { usageRouter } from './routes/usage.ts';
-import { billingRouter } from './routes/billing.ts';
-import { webhooksRouter } from './routes/webhooks.ts';
-import { docsRouter } from './routes/docs.ts';
+import { healthRouter } from './routes/health.js';
+import { generateRouter } from './routes/generate.js';
+import { usageRouter } from './routes/usage.js';
+import { billingRouter } from './routes/billing.js';
+import { webhooksRouter } from './routes/webhooks.js';
+import { docsRouter } from './routes/docs.js';
 
 export const app = express();
 
