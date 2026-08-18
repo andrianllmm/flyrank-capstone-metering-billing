@@ -56,3 +56,14 @@ Wrote the `hashApiKey` helper.
 
 **Changed:** Used types from Prisma client and defined our own. Recorded `api_call` usage.
 Added `prompt` to the input, and used it to calculate token counts with a simple heuristic.
+
+## 2026-08-18 - Seed script
+
+**AI helped:** Wrote `prisma/seed.ts` Wired it up via `prisma.config.ts`'s `migrations.seed`
+and a `pnpm seed` script.
+
+**AI was wrong:** First draft redefined `hashApiKey` locally in the seed
+script instead of importing the existing helper.
+
+**Changed:** Imported the existing `hashApiKey` helper instead of
+duplicating it.

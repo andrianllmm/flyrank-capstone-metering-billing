@@ -22,7 +22,7 @@ pnpm dev
 ## Seed
 
 ```bash
-pnpm exec prisma db seed`
+pnpm seed
 ```
 
 ## Test
