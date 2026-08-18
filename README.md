@@ -99,6 +99,12 @@ curl -X POST http://localhost:3000/generate \
   -d '{"prompt": "hello"}'
 ```
 
+## API docs
+
+Interactive API docs are served at `/docs` once the server is running.
+
+![API docs page](docs/images/api-docs-page.png)
+
 ## Test
 
 ```bash
