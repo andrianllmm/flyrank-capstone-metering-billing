@@ -50,15 +50,38 @@ idempotencyKey])` constraint as the real enforcement mechanism — but
 
 ## Quotas
 
-- [ ] Usage is checked against the tenant's plan; requests over the limit
+- [x] Usage is checked against the tenant's plan; requests over the limit
       are rejected.
 
-  _Evidence:_ TODO
+  _Evidence:_ Tested against seed tenants at 999/1,000 and 1,000/1,000
+  API calls (`docs/spec.md` boundary case: at / just under / over).
 
-- [ ] Responses carry the correct status codes (429/402) and a message
+  ```
+  $ curl -X POST http://localhost:3000/generate \
+      -H "Authorization: Bearer seed-free-near-limit-key" \
+      -H "Idempotency-Key: quota-test-3" -d '{"prompt": "test"}'
+  # 999/1,000 -> allowed, tenant now at 1,000/1,000
+  {"output":"...","usage":[{"type":"api_call","quantity":1,...}]}
+
+  $ curl -X POST http://localhost:3000/generate \
+      -H "Authorization: Bearer seed-free-near-limit-key" \
+      -H "Idempotency-Key: quota-test-5" -d '{"prompt": "test"}'
+  # 1,000/1,000 -> rejected
+  {"status":"error","message":"api_call quota exceeded: 1000/1000 used this period."}
+  ```
+
+- [x] Responses carry the correct status codes (429/402) and a message
       explaining why.
 
-  _Evidence:_ TODO
+  _Evidence:_
+
+  ```
+  $ curl -X POST http://localhost:3000/generate -H "Authorization: Bearer seed-lapsed-key" ...
+  402 {"status":"error","message":"No active subscription. Upgrade or renew your plan to continue."}
+
+  $ curl -X POST http://localhost:3000/generate -H "Authorization: Bearer seed-free-over-limit-key" ...
+  429 {"status":"error","message":"api_call quota exceeded: 1000/1000 used this period."}
+  ```
 
 ## Cost calculation
 

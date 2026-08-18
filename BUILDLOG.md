@@ -67,3 +67,10 @@ script instead of importing the existing helper.
 
 **Changed:** Imported the existing `hashApiKey` helper instead of
 duplicating it.
+
+## 2026-08-18 - Quota enforcement
+
+**AI helped:** Scaffolded the repository, service, and route.
+Wired quota checks into `/generate` before metering.
+
+**AI was wrong:** Some stylistic issues, but nothing critical.
