@@ -20,3 +20,5 @@ app.use(usageRouter);
 app.use(billingRouter);
 app.use(webhooksRouter);
 app.use(docsRouter);
+
+export default app;
