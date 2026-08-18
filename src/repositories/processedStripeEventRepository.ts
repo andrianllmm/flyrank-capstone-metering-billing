@@ -1,8 +1,11 @@
+import { prisma } from '../lib/prisma.js';
+import type { ProcessedStripeEvent } from '../generated/prisma/client.js';
+
 export const processedStripeEventRepository = {
-  findById: (): never => {
-    throw new Error('Not implemented');
+  findById: (stripeEventId: string): Promise<ProcessedStripeEvent | null> => {
+    return prisma.processedStripeEvent.findUnique({ where: { stripeEventId } });
   },
-  create: (): never => {
-    throw new Error('Not implemented');
+  create: (stripeEventId: string): Promise<ProcessedStripeEvent> => {
+    return prisma.processedStripeEvent.create({ data: { stripeEventId } });
   },
 };

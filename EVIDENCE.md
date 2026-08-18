@@ -124,14 +124,68 @@ request with the same idempotency key` — sends the same request twice,
 
 ## Stripe integration
 
-- [ ] Subscription checkout works end-to-end in Stripe test mode.
+- [x] Subscription checkout works end-to-end in Stripe test mode.
 
-  _Evidence:_ TODO
+  _Evidence:_ Real checkout call, then a signed `checkout.session.completed`
+  webhook flips the tenant Free -> Pro (checked via `/usage`):
 
-- [ ] Webhooks verify signatures, ignore duplicate events, and update
+  ```
+  $ curl -s -X POST http://localhost:3000/billing/checkout -H "Authorization: Bearer seed-free-fresh-key"
+  {"status":"ok","url":"https://checkout.stripe.com/c/pay/cs_test_..."}
+
+  $ curl -s http://localhost:3000/usage -H "Authorization: Bearer seed-free-fresh-key"
+  {"usage":[{"type":"api_call","limit":1000,...}]}   # Free limits
+
+  $ curl -s -X POST http://localhost:3000/webhooks/stripe -H "stripe-signature: ..." --data-binary @checkout.session.completed.json
+  {"status":"ok"}
+
+  $ curl -s http://localhost:3000/usage -H "Authorization: Bearer seed-free-fresh-key"
+  {"usage":[{"type":"api_call","limit":50000,...}]}   # Pro limits
+  ```
+
+  Plus `tests/billing.checkout.test.ts` (4 tests, real Stripe API):
+
+  ```
+  ✓ rejects requests without a valid API key
+  ✓ creates a checkout session and persists the stripe customer id
+  ✓ recovers when the tenant has a stripe customer id that no longer exists on Stripe
+  ✓ rejects with 409 when the tenant already has an active pro subscription
+  ```
+
+  Needs a real test-mode Price (`STRIPE_PRICE_ID_PRO`) and a business name on
+  the Stripe account - one-time dashboard setup, not code.
+
+- [x] Webhooks verify signatures, ignore duplicate events, and update
       tenant plan/status.
 
-  _Evidence:_ TODO
+  _Evidence:_ `tests/webhookService.test.ts` (6 tests, signed locally, no live
+  Stripe calls):
+
+  ```
+  ✓ no-ops on checkout.session.completed for an unrecognized tenant id, without throwing
+  ✓ no-ops on customer.subscription.deleted for an unrecognized subscription id, without throwing
+  ✓ rejects a payload with an invalid signature
+  ✓ upserts an active subscription on checkout.session.completed and flips the tenant to pro
+  ✓ processes a replayed event id exactly once
+  ✓ reuses the tenant existing subscription row on checkout instead of creating a second one, so a later cancellation actually blocks access
+  ```
+
+  Live confirmation, same session as above (forged signature rejected,
+  cancellation actually blocks access, replay is a no-op):
+
+  ```
+  $ curl -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:3000/webhooks/stripe \
+      -H "stripe-signature: t=1,v1=bad" -d '{}'
+  400
+
+  $ curl -s -X POST http://localhost:3000/webhooks/stripe --data-binary @customer.subscription.deleted.json
+  {"status":"ok"}
+  $ curl -s -X POST http://localhost:3000/generate -H "Authorization: Bearer seed-free-fresh-key" -d '{"prompt":"hi"}'
+  {"status":"error","message":"No active subscription. Upgrade or renew your plan to continue."}
+  ```
+
+  This manual pass is also what caught the two bugs logged in `BUILDLOG.md` -
+  both fixed and now covered by the regression tests above.
 
 ## Data model, tests & documentation
 
@@ -159,14 +213,16 @@ request with the same idempotency key` — sends the same request twice,
   yet checked off pending a test that proves cross-tenant isolation at the
   query layer.
 
-- [ ] Tests cover: duplicate usage prevention, quota boundary cases (at /
+- [x] Tests cover: duplicate usage prevention, quota boundary cases (at /
       just under / over), cost calculations, invalid-webhook rejection,
       duplicate-webhook handling.
 
   _Evidence:_ `tests/generate.test.ts` covers duplicate usage prevention
-  and quota boundaries (at the limit / over the limit), see above. Cost
-  calculations, invalid-webhook rejection, and duplicate-webhook handling
-  are still TODO — those slices aren't implemented yet.
+  and quota boundaries (at the limit / over the limit), see above.
+  `tests/costService.test.ts` covers cost calculations. `tests/webhookService.test.ts`
+  covers invalid-webhook rejection ("rejects a payload with an invalid
+  signature") and duplicate-webhook handling ("processes a replayed event id
+  exactly once"), both listed above under Stripe integration.
 
 - [ ] README + architecture diagram + setup instructions; submission-pack
       files from §11 present.

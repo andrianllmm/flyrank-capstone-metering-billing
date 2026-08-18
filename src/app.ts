@@ -8,6 +8,8 @@ import { docsRouter } from './routes/docs.js';
 
 export const app = express();
 
+// webhooks needs the raw body for signature verification, so it's mounted before express.json()
+app.use(webhooksRouter);
 app.use(express.json());
 
 app.get('/', (_req, res) => {
@@ -18,7 +20,6 @@ app.use(healthRouter);
 app.use(generateRouter);
 app.use(usageRouter);
 app.use(billingRouter);
-app.use(webhooksRouter);
 app.use(docsRouter);
 
 export default app;

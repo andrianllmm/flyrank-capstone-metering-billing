@@ -10,6 +10,8 @@ import {
   GenerateResponseSchema,
 } from './schemas/generate.js';
 import { UsageResponseSchema } from './schemas/usage.js';
+import { CheckoutHeadersSchema, CheckoutResponseSchema } from './schemas/billing.js';
+import { StripeWebhookHeadersSchema, WebhookResponseSchema } from './schemas/webhooks.js';
 
 extendZodWithOpenApi(z);
 
@@ -87,6 +89,67 @@ registry.registerPath({
     },
     402: {
       description: 'No active subscription for the tenant.',
+      content: { 'application/json': { schema: ErrorResponse } },
+    },
+  },
+});
+
+registry.registerPath({
+  method: 'post',
+  path: '/billing/checkout',
+  summary: 'Create a Stripe Checkout session',
+  description: 'Creates a Stripe Checkout session for the tenant to upgrade to the pro plan.',
+  security: [{ [bearerAuth.name]: [] }],
+  request: {
+    headers: CheckoutHeadersSchema.omit({ authorization: true }),
+  },
+  responses: {
+    200: {
+      description: 'Checkout session created.',
+      content: { 'application/json': { schema: CheckoutResponseSchema } },
+    },
+    401: {
+      description: 'Missing, malformed, or invalid API key.',
+      content: { 'application/json': { schema: ErrorResponse } },
+    },
+    409: {
+      description: 'Tenant already has an active pro subscription.',
+      content: { 'application/json': { schema: ErrorResponse } },
+    },
+    502: {
+      description: 'Failed to create checkout session with Stripe.',
+      content: { 'application/json': { schema: ErrorResponse } },
+    },
+  },
+});
+
+registry.registerPath({
+  method: 'post',
+  path: '/webhooks/stripe',
+  summary: 'Stripe webhook receiver',
+  description:
+    'Receives and verifies Stripe webhook events (checkout/session/subscription updates) using the raw request body and stripe-signature header.',
+  request: {
+    headers: StripeWebhookHeadersSchema,
+    body: {
+      content: {
+        'application/json': {
+          schema: z.string().openapi({ description: 'Raw Stripe event payload.' }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Event processed.',
+      content: { 'application/json': { schema: WebhookResponseSchema } },
+    },
+    400: {
+      description: 'Missing stripe-signature header or invalid signature.',
+      content: { 'application/json': { schema: ErrorResponse } },
+    },
+    500: {
+      description: 'Webhook handling failed.',
       content: { 'application/json': { schema: ErrorResponse } },
     },
   },

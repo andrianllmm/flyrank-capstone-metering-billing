@@ -122,3 +122,7 @@ regex.
 
 **Changed:** `USAGE_TYPES` moved to `src/lib/usageTypes.ts`, reused by both schemas and the service.
 Added `src/lib/auth.ts` (`resolveTenant`, shared error messages), used by both routes.
+
+## 2026-08-18 - Stripe integration: checkout + webhooks
+
+**AI helped:** Answering questions and showing me how to use the Stripe API and how to integrate it to existing codebase.
