@@ -189,7 +189,7 @@ request with the same idempotency key` — sends the same request twice,
 
 ## Data model, tests & documentation
 
-- [ ] Database includes tenants, plans, subscriptions, and usage events;
+- [x] Database includes tenants, plans, subscriptions, and usage events;
       customer data isolated per tenant.
 
   _Evidence:_ Schema migrated (`npx prisma migrate dev --name init`,
@@ -209,9 +209,12 @@ request with the same idempotency key` — sends the same request twice,
   (6 rows)
   ```
 
-  Every `usage_events` and `subscriptions` row carries `tenant_id` FK; not
-  yet checked off pending a test that proves cross-tenant isolation at the
-  query layer.
+  Isolation proven by `tests/tenantIsolation.test.ts`:
+
+  ```
+  ✓ GET /usage for one tenant never reflects another tenant's usage
+  ✓ the same idempotency key from two different tenants records two separate usage events, not a dedup collision
+  ```
 
 - [x] Tests cover: duplicate usage prevention, quota boundary cases (at /
       just under / over), cost calculations, invalid-webhook rejection,
