@@ -227,7 +227,9 @@ request with the same idempotency key` — sends the same request twice,
   signature") and duplicate-webhook handling ("processes a replayed event id
   exactly once"), both listed above under Stripe integration.
 
-- [ ] README + architecture diagram + setup instructions; submission-pack
+- [x] README + architecture diagram + setup instructions; submission-pack
       files from §11 present.
 
-  _Evidence:_ TODO
+  _Evidence:_ `README.md` has a mermaid architecture diagram, setup/run/seed/test
+  commands, and a limitations section covering the known idempotency race
+  condition. `capstone.yaml`, `BUILDLOG.md`, `.env.example` all present at repo root.
