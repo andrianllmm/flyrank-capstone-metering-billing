@@ -11,3 +11,77 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum UsageType {
+  api_call
+  ai_tokens
+}
+
+enum SubscriptionStatus {
+  active
+  past_due
+  canceled
+}
+
+model Tenant {
+  id                String   @id @default(uuid())
+  name              String
+  apiKeyHash        String   @unique @map("api_key_hash")
+  stripeCustomerId  String?  @unique @map("stripe_customer_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  subscriptions Subscription[]
+  usageEvents   UsageEvent[]
+
+  @@map("tenants")
+}
+
+model Plan {
+  id             String @id @default(uuid())
+  name           String @unique
+  apiCallsLimit  Int    @map("api_calls_limit")
+  aiTokensLimit  Int    @map("ai_tokens_limit")
+
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  tenantId             String             @map("tenant_id")
+  planId               String             @map("plan_id")
+  stripeSubscriptionId String?            @unique @map("stripe_subscription_id")
+  status               SubscriptionStatus
+  currentPeriodStart   DateTime           @map("current_period_start")
+  currentPeriodEnd     DateTime           @map("current_period_end")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  @@index([tenantId])
+  @@map("subscriptions")
+}
+
+model UsageEvent {
+  id             String    @id @default(uuid())
+  tenantId       String    @map("tenant_id")
+  type           UsageType
+  quantity       Int
+  costMicros     BigInt    @map("cost_micros")
+  idempotencyKey String    @map("idempotency_key")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, createdAt])
+  @@map("usage_events")
+}
+
+model ProcessedStripeEvent {
+  stripeEventId String   @id @map("stripe_event_id")
+  processedAt   DateTime @default(now()) @map("processed_at")
+
+  @@map("processed_stripe_events")
+}

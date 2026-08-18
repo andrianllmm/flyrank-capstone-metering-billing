@@ -34,3 +34,11 @@ default, which `typescript-eslint` doesn't support yet.
    in `.env`. Prisma 7 requires an explicit driver adapter now.
 
 **Changed:** Generator output path, the Prisma client import, and the driver adapter dependency.
+
+## 2026-08-18 - Prisma schema
+
+**AI helped:** Drafted `prisma/schema.prisma` directly from the ERD already.
+
+**AI was wrong:** First wrote `url = env("DATABASE_URL")` which is the Prisma 6 pattern.
+
+**Changed:** Removed `url` from the `datasource` block.

@@ -58,7 +58,26 @@ Claims without evidence score as not done.
 - [ ] Database includes tenants, plans, subscriptions, and usage events;
       customer data isolated per tenant.
 
-  _Evidence:_ TODO
+  _Evidence:_ Schema migrated (`npx prisma migrate dev --name init`,
+  migration `20260818060929_init`), tables present in Postgres:
+
+  ```
+  $ docker exec flyrank-capstone-metering-billing-db-1 psql -U postgres -d metering_billing -c '\dt'
+                    List of relations
+   Schema |          Name           | Type  |  Owner
+  --------+-------------------------+-------+----------
+   public | _prisma_migrations      | table | postgres
+   public | plans                   | table | postgres
+   public | processed_stripe_events | table | postgres
+   public | subscriptions           | table | postgres
+   public | tenants                 | table | postgres
+   public | usage_events            | table | postgres
+  (6 rows)
+  ```
+
+  Every `usage_events` and `subscriptions` row carries `tenant_id` FK; not
+  yet checked off pending a test that proves cross-tenant isolation at the
+  query layer.
 
 - [ ] Tests cover: duplicate usage prevention, quota boundary cases (at /
       just under / over), cost calculations, invalid-webhook rejection,
