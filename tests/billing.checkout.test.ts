@@ -1,5 +1,34 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
+import Stripe from 'stripe';
+
+vi.mock('../src/lib/stripe.js', () => {
+  let customerSeq = 0;
+  return {
+    stripe: {
+      customers: {
+        retrieve: vi.fn(async (id: string) => {
+          if (id === 'cus_doesnotexist123') {
+            throw new Stripe.errors.StripeInvalidRequestError({
+              type: 'invalid_request_error',
+              code: 'resource_missing',
+              message: 'No such customer',
+              statusCode: 404,
+            });
+          }
+          return { id, deleted: false };
+        }),
+        create: vi.fn(async () => ({ id: `cus_test_${++customerSeq}` })),
+      },
+      checkout: {
+        sessions: {
+          create: vi.fn(async () => ({ url: 'https://checkout.stripe.com/test-session' })),
+        },
+      },
+    },
+  };
+});
+
 import { app } from '../src/app.js';
 import { prisma } from '../src/lib/prisma.js';
 import { createTestTenant, cleanupTenant } from './helpers/fixtures.js';
