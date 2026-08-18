@@ -1,13 +1,12 @@
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 import { z } from 'zod';
+import { USAGE_TYPES } from '../lib/usageTypes.ts';
+import { AuthorizationHeaderSchema } from './common.ts';
 
 extendZodWithOpenApi(z);
 
 export const GenerateHeadersSchema = z.object({
-  authorization: z
-    .string({ error: 'Missing or invalid Authorization header' })
-    .regex(/^Bearer\s+.+$/, 'Missing or invalid Authorization header')
-    .openapi({ example: 'Bearer <tenant_api_key>' }),
+  authorization: AuthorizationHeaderSchema,
   'idempotency-key': z
     .string({ error: 'Missing Idempotency-Key header' })
     .min(1, 'Missing Idempotency-Key header')
@@ -22,7 +21,7 @@ export const GenerateBodySchema = z.object({
 });
 
 export const UsageEntrySchema = z.object({
-  type: z.enum(['api_call', 'ai_tokens']).openapi({ example: 'ai_tokens' }),
+  type: z.enum(USAGE_TYPES).openapi({ example: 'ai_tokens' }),
   quantity: z.number().int().openapi({ example: 10 }),
   costMicros: z.string().openapi({
     description: 'Integer cost in micros (1,000,000 = $1.00), as a string to preserve precision.',

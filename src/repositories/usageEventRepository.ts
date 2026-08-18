@@ -22,4 +22,15 @@ export const usageEventRepository = {
     });
     return result._sum.quantity ?? 0;
   },
+  sumByType: async (
+    tenantId: string,
+    type: UsageType,
+    since: Date,
+  ): Promise<{ quantity: number; costMicros: bigint }> => {
+    const result = await prisma.usageEvent.aggregate({
+      where: { tenantId, type, createdAt: { gte: since } },
+      _sum: { quantity: true, costMicros: true },
+    });
+    return { quantity: result._sum.quantity ?? 0, costMicros: result._sum.costMicros ?? 0n };
+  },
 };

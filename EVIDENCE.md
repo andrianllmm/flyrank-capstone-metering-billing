@@ -93,9 +93,14 @@ request with the same idempotency key` — sends the same request twice,
 
 ## Cost calculation
 
-- [ ] Monthly usage rolls up into a cost figure per tenant.
+- [x] Monthly usage rolls up into a cost figure per tenant.
 
-  _Evidence:_ TODO — `GET /usage` not implemented yet.
+  _Evidence:_ `GET /usage` — `{ used, limit, costMicros }` per type, current period only.
+
+  ```
+  $ curl http://localhost:3000/usage -H "Authorization: Bearer seed-free-fresh-key"
+  {"usage":[{"type":"api_call","used":1,"limit":1000,"costMicros":"500"},{"type":"ai_tokens","used":18,"limit":100000,"costMicros":"208"}]}
+  ```
 
 - [x] AI token pricing handles cached input tokens, reasoning tokens, and
       output pricing correctly.

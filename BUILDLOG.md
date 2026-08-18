@@ -109,3 +109,16 @@ I pinned arbitrary pricing constants, implemented `costService`.
 **AI was wrong:** `generate.test.ts` mixed several concerns in one file unlike new `costService.test.ts`.
 
 **Changed:** split to match `costService.test.ts`'s isolation, added direct `quotaService.test.ts` and `meterService.test.ts`.
+
+## 2026-08-18 - GET /usage
+
+**AI helped:** Added `usageService`, `sumByType`, extracted the shared
+`Authorization` header.
+
+**AI was wrong:** Left `USAGE_TYPES` colocated in `usageService.ts` even though the type list
+was already duplicated in two Zod schemas. Also left the Bearer-token extraction, tenant lookup,
+and error messages copy-pasted across `generate.ts` and `usage.ts` after only unifying the header
+regex.
+
+**Changed:** `USAGE_TYPES` moved to `src/lib/usageTypes.ts`, reused by both schemas and the service.
+Added `src/lib/auth.ts` (`resolveTenant`, shared error messages), used by both routes.

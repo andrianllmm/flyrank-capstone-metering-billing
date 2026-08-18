@@ -1,7 +1,10 @@
 import { Router, type Response } from 'express';
 import type { UsageType } from '../generated/prisma/client.ts';
-import { hashApiKey } from '../lib/apiKey.ts';
-import { tenantRepository } from '../repositories/tenantRepository.ts';
+import {
+  INVALID_API_KEY_MESSAGE,
+  NO_ACTIVE_SUBSCRIPTION_MESSAGE,
+  resolveTenant,
+} from '../lib/auth.ts';
 import { meterService } from '../services/meterService.ts';
 import { quotaService, type QuotaCheckResult } from '../services/quotaService.ts';
 import type { AiTokenBreakdown } from '../services/costService.ts';
@@ -29,10 +32,7 @@ function respondQuotaExceeded(
   type: UsageType,
 ): void {
   if (result.reason === 'no_active_subscription') {
-    res.status(402).json({
-      status: 'error',
-      message: 'No active subscription. Upgrade or renew your plan to continue.',
-    });
+    res.status(402).json({ status: 'error', message: NO_ACTIVE_SUBSCRIPTION_MESSAGE });
     return;
   }
 
@@ -60,13 +60,12 @@ generateRouter.post('/generate', async (req, res) => {
     return;
   }
 
-  const apiKey = headers.data.authorization.replace(/^Bearer\s+/, '');
   const idempotencyKey = headers.data['idempotency-key'];
   const { prompt } = body.data;
 
-  const tenant = await tenantRepository.findByApiKeyHash(hashApiKey(apiKey));
+  const tenant = await resolveTenant(headers.data.authorization);
   if (!tenant) {
-    res.status(401).json({ status: 'error', message: 'Invalid API key' });
+    res.status(401).json({ status: 'error', message: INVALID_API_KEY_MESSAGE });
     return;
   }
 

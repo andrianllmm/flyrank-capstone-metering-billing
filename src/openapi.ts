@@ -9,6 +9,7 @@ import {
   GenerateHeadersSchema,
   GenerateResponseSchema,
 } from './schemas/generate.ts';
+import { UsageResponseSchema } from './schemas/usage.ts';
 
 extendZodWithOpenApi(z);
 
@@ -64,6 +65,28 @@ registry.registerPath({
     },
     429: {
       description: 'Plan quota exceeded for this usage type this billing period.',
+      content: { 'application/json': { schema: ErrorResponse } },
+    },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/usage',
+  summary: 'Current-period usage rollup',
+  description: '{ used, limit, cost } per usage type for the current billing period.',
+  security: [{ [bearerAuth.name]: [] }],
+  responses: {
+    200: {
+      description: 'Rollup returned.',
+      content: { 'application/json': { schema: UsageResponseSchema } },
+    },
+    401: {
+      description: 'Missing, malformed, or invalid API key.',
+      content: { 'application/json': { schema: ErrorResponse } },
+    },
+    402: {
+      description: 'No active subscription for the tenant.',
       content: { 'application/json': { schema: ErrorResponse } },
     },
   },
