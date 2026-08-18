@@ -4,6 +4,11 @@ import { hashApiKey } from '../lib/apiKey.ts';
 import { tenantRepository } from '../repositories/tenantRepository.ts';
 import { meterService } from '../services/meterService.ts';
 import { quotaService, type QuotaCheckResult } from '../services/quotaService.ts';
+import {
+  GenerateBodySchema,
+  GenerateHeadersSchema,
+  GenerateResponseSchema,
+} from '../schemas/generate.ts';
 
 export const generateRouter = Router();
 
@@ -32,24 +37,26 @@ function respondQuotaExceeded(
 }
 
 generateRouter.post('/generate', async (req, res) => {
-  const authHeader = req.header('authorization');
-  const apiKey = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null;
-  if (!apiKey) {
-    res.status(401).json({ status: 'error', message: 'Missing or invalid Authorization header' });
+  const headers = GenerateHeadersSchema.safeParse(req.headers);
+  if (!headers.success) {
+    const authIssue = headers.error.issues.find((issue) => issue.path[0] === 'authorization');
+    if (authIssue) {
+      res.status(401).json({ status: 'error', message: authIssue.message });
+      return;
+    }
+    res.status(400).json({ status: 'error', message: headers.error.issues[0]?.message });
     return;
   }
 
-  const idempotencyKey = req.header('idempotency-key');
-  if (!idempotencyKey) {
-    res.status(400).json({ status: 'error', message: 'Missing Idempotency-Key header' });
+  const body = GenerateBodySchema.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ status: 'error', message: body.error.issues[0]?.message });
     return;
   }
 
-  const prompt: unknown = req.body?.prompt;
-  if (typeof prompt !== 'string' || prompt.length === 0) {
-    res.status(400).json({ status: 'error', message: 'Missing or invalid "prompt" in body' });
-    return;
-  }
+  const apiKey = headers.data.authorization.replace(/^Bearer\s+/, '');
+  const idempotencyKey = headers.data['idempotency-key'];
+  const { prompt } = body.data;
 
   const tenant = await tenantRepository.findByApiKeyHash(hashApiKey(apiKey));
   if (!tenant) {
@@ -94,7 +101,10 @@ generateRouter.post('/generate', async (req, res) => {
     }),
   ]);
 
-  res.status(200).json({
+  // Validated against the same schema openapi.ts documents, so a shape
+  // mismatch (e.g. a forgotten costMicros.toString()) fails loudly here
+  // instead of shipping silently.
+  const response = GenerateResponseSchema.parse({
     output: 'This is a simulated AI response.',
     usage: [
       {
@@ -109,4 +119,6 @@ generateRouter.post('/generate', async (req, res) => {
       },
     ],
   });
+
+  res.status(200).json(response);
 });

@@ -74,3 +74,18 @@ duplicating it.
 Wired quota checks into `/generate` before metering.
 
 **AI was wrong:** Some stylistic issues, but nothing critical.
+
+## 2026-08-18 - API docs + Zod schemas
+
+**AI helped:** Added OpenAPI docs (`zod-to-openapi` + Scalar) at `/docs`,
+backed by real Zod schemas for `/generate` in `src/schemas/`.
+
+**AI was wrong:** Docs first covered unimplemented endpoints too.
+No Zod at first, so docs and validation could drift.
+Schemas colocated in `routes/` instead of their own layer.
+Server URL was hardcoded to `localhost`, then "fixed" to still hardcode `localhost` with just the port from env.
+
+**Changed:** Docs scoped to `/generate` only.
+Route and docs share one Zod schema.
+Schemas moved to `src/schemas/`.
+Server URL now reads `BASE_URL` from env.

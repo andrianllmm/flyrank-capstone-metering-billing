@@ -4,6 +4,7 @@ import { generateRouter } from './routes/generate.ts';
 import { usageRouter } from './routes/usage.ts';
 import { billingRouter } from './routes/billing.ts';
 import { webhooksRouter } from './routes/webhooks.ts';
+import { docsRouter } from './routes/docs.ts';
 
 export const app = express();
 
@@ -18,3 +19,4 @@ app.use(generateRouter);
 app.use(usageRouter);
 app.use(billingRouter);
 app.use(webhooksRouter);
+app.use(docsRouter);
