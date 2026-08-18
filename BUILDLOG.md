@@ -10,7 +10,7 @@ so this log has to be specific enough to explain any 2-3 lines an evaluator poin
 **AI helped:** Set up the Node.js + TypeScript + pnpm project (`package.json`,
 `tsconfig.json`, layered folder structure), matching the brief's §10 stack.
 
-**AI was wrong:** `pulled in a new version of TypeScript by
+**AI was wrong:** Pulled in a new version of TypeScript by
 default, which `typescript-eslint` doesn't support yet.
 
 **Changed:** Pinned `typescript`.
@@ -42,3 +42,17 @@ default, which `typescript-eslint` doesn't support yet.
 **AI was wrong:** First wrote `url = env("DATABASE_URL")` which is the Prisma 6 pattern.
 
 **Changed:** Removed `url` from the `datasource` block.
+
+## 2026-08-18 - Metering: `/generate` route, idempotency
+
+**AI helped:** Scaffolded the repository, service, and route.
+Wrote the `hashApiKey` helper.
+
+**AI was wrong:**
+
+1. It did not use explicit types.
+2. It only recorded `ai_tokens` usage, not `api_call` usage.
+3. It did not take a dynamic input like `prompt` into account for dynamic token counts.
+
+**Changed:** Used types from Prisma client and defined our own. Recorded `api_call` usage.
+Added `prompt` to the input, and used it to calculate token counts with a simple heuristic.

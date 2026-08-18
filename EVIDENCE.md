@@ -6,14 +6,47 @@ Claims without evidence score as not done.
 
 ## Metering
 
-- [ ] A billable action creates exactly one usage event, even under retries,
+- [x] A billable action creates exactly one usage event, even under retries,
       deduplicated by idempotency key.
 
-  _Evidence:_ TODO
+  _Evidence:_ `POST /generate` sent twice with the same `Idempotency-Key`, same tenant.
+  Second response is identical to the first, and only 2 rows exist in `usage_events` for that key.
+
+  ```
+  $ curl -X POST http://localhost:3000/generate \
+      -H "Authorization: Bearer test-api-key" \
+      -H "Idempotency-Key: evidence-key-1" \
+      -H "Content-Type: application/json" \
+      -d '{"prompt": "Hello, tell me about billing systems."}'
+  {"output":"This is a simulated AI response.","usage":[{"type":"api_call","quantity":1,"costMicros":"0"},{"type":"ai_tokens","quantity":10,"costMicros":"0"}]}
+
+  $ curl -X POST http://localhost:3000/generate \
+      -H "Authorization: Bearer test-api-key" \
+      -H "Idempotency-Key: evidence-key-1" \
+      -H "Content-Type: application/json" \
+      -d '{"prompt": "Hello, tell me about billing systems."}'
+  {"output":"This is a simulated AI response.","usage":[{"type":"api_call","quantity":1,"costMicros":"0"},{"type":"ai_tokens","quantity":10,"costMicros":"0"}]}
+
+  $ docker exec <db> psql -U postgres -d metering_billing -c \
+      "SELECT type, quantity, idempotency_key FROM usage_events WHERE idempotency_key LIKE 'evidence-key-1%';"
+     type    | quantity |     idempotency_key
+  -----------+----------+--------------------------
+   api_call  |        1 | evidence-key-1:api_call
+   ai_tokens |       10 | evidence-key-1:ai_tokens
+  (2 rows)
+  ```
 
 - [ ] A test proves double-counting cannot happen.
 
-  _Evidence:_ TODO
+  _Evidence:_ Proven manually above (curl transcript), but not yet as an
+  automated test. `meterService.record` checks `findByIdempotencyKey`
+  before inserting, backed by the DB's `@@unique([tenantId,
+idempotencyKey])` constraint as the real enforcement mechanism — but
+  there's no Vitest/Supertest test asserting this yet, and the check-then-
+  insert isn't atomic (a genuine concurrent race could still both pass the
+  read before either writes; the DB unique constraint would reject the
+  second write with `P2002`, which the service doesn't yet catch). Pending
+  the metering test slice.
 
 ## Quotas
 
